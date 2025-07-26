@@ -9,7 +9,7 @@ import java.util.UUID;
 
 @Entity
 @Data
-@Table(name = "transactions")
+@Table(name = "transactions", schema = "muletrapschema")
 public class TransactionEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
