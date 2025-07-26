@@ -45,8 +45,8 @@ public class FraudDetectionService {
         float dot = 0f, normA = 0f, normB = 0f;
         for (int i = 0; i < a.length; i++) {
             dot += a[i] * b[i];
-            normA += Math.pow(a[i], 2);
-            normB += Math.pow(b[i], 2);
+            normA += (float) Math.pow(a[i], 2);
+            normB += (float) Math.pow(b[i], 2);
         }
         return (float) (dot / (Math.sqrt(normA) * Math.sqrt(normB)));
     }
