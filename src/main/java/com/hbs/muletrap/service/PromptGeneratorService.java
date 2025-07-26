@@ -1,11 +1,11 @@
 package com.hbs.muletrap.service;
 
 import com.hbs.muletrap.config.RiskConfig;
-import com.hbs.muletrap.constants.MuleTrapConstants;
 import com.hbs.muletrap.dto.TransactionInput;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
+import static com.hbs.muletrap.constants.MuleTrapConstants.*;
 
 @Service
 public class PromptGeneratorService {
@@ -20,11 +20,11 @@ public class PromptGeneratorService {
     public String generatePrompt(TransactionInput txn, RiskConfig config) {
         String amountCategory = categorizeAmount(txn.getAmount(), config);
         String countryRisk    = config.getHighRiskCountries().contains(txn.getCountry())
-                ? MuleTrapConstants.HIGH_RISK_LABEL
-                : MuleTrapConstants.LOW_RISK_LABEL;
+                ? HIGH_RISK_LABEL
+                : LOW_RISK_LABEL;
         String ageCategory    = txn.getAccountAgeDays() < config.getNewAccountDays()
-                ? MuleTrapConstants.NEWLY_OPENED_LABEL
-                : MuleTrapConstants.ESTABLISHED_LABEL;
+                ? NEWLY_OPENED_LABEL
+                : ESTABLISHED_LABEL;
 
         return String.format(PROMPT_TEMPLATE,
                 txn.getAmount(),
@@ -42,11 +42,11 @@ public class PromptGeneratorService {
     private String categorizeAmount(BigDecimal amount, RiskConfig config) {
         double value = amount.doubleValue();
         if (value >= config.getAmount().getHigh()) {
-            return MuleTrapConstants.HIGH_VALUE_LABEL;
+            return HIGH_VALUE_LABEL;
         } else if (value >= config.getAmount().getMedium()) {
-            return MuleTrapConstants.MEDIUM_VALUE_LABEL;
+            return MEDIUM_VALUE_LABEL;
         } else {
-            return MuleTrapConstants.LOW_VALUE_LABEL;
+            return LOW_VALUE_LABEL;
         }
     }
 }
