@@ -3,16 +3,26 @@ server:
   servlet:
     contextPath: /api
 
-#spring:
-#  profiles:
-#    default: database
+spring:
+  profiles:
+    include: database
+
+logging:
+  file:
+    name: logs/muletrap.log
+  level:
+    root: DEBUG
 
 management:
   endpoints:
     web:
       base-path: /actuator
       exposure:
-        include: health  # Only expose /actuator/health
+        include: health
   endpoint:
     health:
       show-details: never
+
+springdoc:
+  api-docs:
+    path: /v3/api-docs
