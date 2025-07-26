@@ -1,6 +1,6 @@
 spring:
   datasource:
-    url: jdbc:postgresql://localhost:5432/muletrapdb
+    url: jdbc:postgresql://localhost:5432/muletrapdb?currentSchema=muletrapschema
     username: muletrapadmin
     password: ${mule_db_password}
     driver-class-name: org.postgresql.Driver
