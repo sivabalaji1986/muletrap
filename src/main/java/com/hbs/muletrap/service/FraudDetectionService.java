@@ -28,7 +28,7 @@ public class FraudDetectionService {
         return false;
     }
 
-    public boolean isSuspiciousInflowOutflowPattern(BigDecimal amount, String accountId) {
+    public boolean isSuspiciousInflowOutflowPattern(BigDecimal amount) {
         List<TransactionEntity> recentTxns = transactionRepository.findByCreatedAtAfter(LocalDateTime.now().minusHours(1));
 
         long inflows = recentTxns.stream()
