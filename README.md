@@ -33,6 +33,14 @@ brew services start postgresql@17
 export PATH="/opt/homebrew/opt/postgresql@17/bin:$PATH"
 ```
 
+**Windows (using Chocolatey):**
+```powershell
+
+choco install postgresql
+# Ensure psql is on your PATH (restart shell if needed)
+```
+Alternatively, download and run the Windows installer from https://www.postgresql.org/download/windows/.
+
 ### 2. Enable pgvector Extension & Create Schema
 
 Connect as the `postgres` superuser:
@@ -104,6 +112,11 @@ To install the Ollama command-line tool (macOS):
 brew install ollama
 ```
 
+*Windows (via Winget):*
+```powershell
+winget install Ollama.Ollama
+```
+
 Verify installation:
 
 ```bash
@@ -121,6 +134,13 @@ curl http://localhost:11434/api/embeddings \
   -d '{"model":"nomic-embed-text","prompt":"Transaction of $900 via mobile at 1:38 AM from Singapore"}'
 ```
 
+*Windows PowerShell alternative:*
+```powershell
+Invoke-RestMethod -Uri http://localhost:11434/api/embeddings -Method POST -Body (
+  '{"model":"nomic-embed-text","prompt":"Transaction of $900 via mobile at 1:38 AM from Singapore"}'
+) -ContentType 'application/json'
+```
+
 ### 5. Build & Run MuleTrap
 
 ```bash
@@ -132,7 +152,7 @@ java -jar target/muletrap-0.0.1-SNAPSHOT.jar
 ```
 
 - Service base path: `http://localhost:8688/api`
-- Swagger UI: `http://localhost:8688/swagger-ui.html`
+- Swagger UI: `http://localhost:8688/api/swagger-ui.html`
 
 ---
 
