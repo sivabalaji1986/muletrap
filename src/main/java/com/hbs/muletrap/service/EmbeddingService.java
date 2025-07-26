@@ -12,7 +12,15 @@ import static com.hbs.muletrap.constants.MuleTrapConstants.*;
 @Service
 public class EmbeddingService {
 
-    private final WebClient webClient = WebClient.create(OLLAMA_URL);
+    private final WebClient webClient;
+
+    public EmbeddingService(WebClient webClient) {
+        this.webClient = webClient;
+    }
+
+    public EmbeddingService() {
+        this(WebClient.create(OLLAMA_URL));
+    }
 
     @SuppressWarnings("unchecked")
     public Mono<float[]> generateEmbedding(String prompt) {
