@@ -5,7 +5,7 @@ server:
 
 spring:
   profiles:
-    include: database
+    include: database, muletrp
 
 logging:
   file:
