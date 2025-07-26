@@ -10,14 +10,14 @@ MuleTrap processes incoming financial transactions, generates a semantic embeddi
 
 | #   | Tool                   | Purpose                         | Notes                                                     |
 | --- | ---------------------- | ------------------------------- | --------------------------------------------------------- |
-| 1️⃣ | **Java 21**            | Run Spring Boot 3.5.4+          | Ensure `JAVA_HOME` is set correctly.                      |
-| 2️⃣ | **IntelliJ IDEA**      | Development IDE                 | Community Edition is sufficient.                          |
-| 3️⃣ | **PostgreSQL (v14+)**  | Database with pgvector support  | Install via Homebrew (see below).                         |
-| 4️⃣ | **pgvector extension** | Store & query vector embeddings | Install and configure schema (see below).                 |
-| 5️⃣ | **DBeaver**            | DB GUI                          | Optional but highly useful.                               |
-| 6️⃣ | **Ollama**             | Local embedding inference       | Pull model and test (see below).                          |
-| 7️⃣ | **Maven 3.9+**         | Build the project               | IntelliJ bundles Maven; CLI optional.                     |
-| 8️⃣ | **curl or Postman**    | API testing                     | Test `/api/transactions` and `/api/transactions/similar`. |
+| 1 | **Java 21**            | Run Spring Boot 3.5.4+          | Ensure `JAVA_HOME` is set correctly.                      |
+| 2 | **IntelliJ IDEA**      | Development IDE                 | Community Edition is sufficient.                          |
+| 3 | **PostgreSQL (v14+)**  | Database with pgvector support  | Install via Homebrew (see below).                         |
+| 4 | **pgvector extension** | Store & query vector embeddings | Install and configure schema (see below).                 |
+| 5 | **DBeaver**            | DB GUI                          | Optional but highly useful.                               |
+| 6 | **Ollama**             | Local embedding inference       | Pull model and test (see below).                          |
+| 7 | **Maven 3.9+**         | Build the project               | IntelliJ bundles Maven; CLI optional.                     |
+| 8 | **curl or Postman**    | API testing                     | Test `/api/transactions` and `/api/transactions/similar`. |
 
 ---
 
