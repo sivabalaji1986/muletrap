@@ -2,11 +2,13 @@ package com.hbs.muletrap.service;
 
 import com.hbs.muletrap.config.RiskConfig;
 import com.hbs.muletrap.dto.TransactionInput;
+import com.hbs.muletrap.dto.TransactionResponse;
 import com.hbs.muletrap.entity.TransactionEntity;
 import com.hbs.muletrap.repository.TransactionRepository;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 public class TransactionService {
@@ -30,7 +32,7 @@ public class TransactionService {
         this.riskConfig = riskConfig;
     }
 
-    public TransactionEntity process(TransactionInput input) {
+    public TransactionResponse process(TransactionInput input) {
         // Generate prompt and embedding synchronously
         String prompt = promptGen.generatePrompt(input, riskConfig);
         float[] vector = embedSvc.generateEmbedding(prompt);
@@ -50,11 +52,30 @@ public class TransactionService {
                 || fraudDetectionService.isSuspiciousInflowOutflowPattern(input.getAmount());
         entity.setMule(isMule);
 
-        // Persist and return
-        return repo.save(entity);
+        // Persist
+        TransactionEntity transactionEntity = repo.save(entity);
+        return toResponse(transactionEntity);
     }
 
-    public List<TransactionEntity> listMules() {
-        return repo.findTop10ByIsMuleTrueOrderByCreatedAtDesc();
+    public List<TransactionResponse> listMules() {
+        List<TransactionEntity> transactionEntities = repo.findTop10ByIsMuleTrueOrderByCreatedAtDesc();
+        List<TransactionResponse> dtoList = transactionEntities.stream()
+                .map(this::toResponse)
+                .collect(Collectors.toList());
+        return dtoList;
+    }
+
+    private TransactionResponse toResponse(TransactionEntity e) {
+        TransactionResponse resp = new TransactionResponse();
+        resp.setId(e.getId());
+        resp.setAmount(e.getAmount());
+        resp.setChannel(e.getChannel());
+        resp.setTime(e.getTime());
+        resp.setCountry(e.getCountry());
+        resp.setAccountAgeDays(e.getAccountAgeDays());
+        resp.setActivitySummary(e.getActivitySummary());
+        resp.setMule(e.isMule());
+        resp.setCreatedAt(e.getCreatedAt());
+        return resp;
     }
 }
