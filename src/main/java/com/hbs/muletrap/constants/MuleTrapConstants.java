@@ -16,4 +16,17 @@ public class MuleTrapConstants {
 
     public static final String ESTABLISHED_LABEL     = "established";
 
+    public static final String OLLAMA_URL       = "http://localhost:11434";
+
+    public static final String OLLAMA_EMBEDDINGS_URL       = "/api/embeddings";
+
+    public static final String OLLAMA_EMBEDDINGS_REQ_MODEL_KEY      = "model";
+
+    public static final String OLLAMA_EMBEDDINGS_REQ_MODEL_VALUE      = "nomic-embed-text";
+
+    public static final String OLLAMA_EMBEDDINGS_REQ_PROMPT_KEY      = "prompt";
+
+    public static final String OLLAMA_EMBEDDINGS_RES_EMBEDDING_KEY      = "embedding";
+
+
 }
