@@ -1,5 +1,6 @@
 package com.hbs.muletrap.service;
 
+import com.hbs.muletrap.config.RiskConfig;
 import com.hbs.muletrap.dto.TransactionInput;
 import com.hbs.muletrap.entity.TransactionEntity;
 import com.hbs.muletrap.repository.TransactionRepository;
@@ -14,17 +15,19 @@ public class TransactionService {
     private final EmbeddingService embedSvc;
     private final FraudDetectionService fraudDetectionService;
     private final TransactionRepository repo;
+    private final RiskConfig riskConfig;
 
     public TransactionService(PromptGeneratorService promptGen, EmbeddingService embedSvc,
-                              FraudDetectionService fraudDetectionService, TransactionRepository repo) {
+                              FraudDetectionService fraudDetectionService, TransactionRepository repo, RiskConfig riskConfig) {
         this.promptGen = promptGen;
         this.embedSvc = embedSvc;
         this.fraudDetectionService = fraudDetectionService;
         this.repo = repo;
+        this.riskConfig  = riskConfig;
     }
 
     public Mono<TransactionEntity> process(TransactionInput input) {
-        String prompt = promptGen.generatePrompt(input, /* inject RiskConfig */ null);
+        String prompt = promptGen.generatePrompt(input, riskConfig);
         return embedSvc.generateEmbedding(prompt)
                 .map(vector -> {
                     TransactionEntity e = new TransactionEntity();
