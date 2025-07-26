@@ -5,7 +5,6 @@ import com.hbs.muletrap.dto.TransactionInput;
 import com.hbs.muletrap.entity.TransactionEntity;
 import com.hbs.muletrap.repository.TransactionRepository;
 import org.springframework.stereotype.Service;
-import reactor.core.publisher.Mono;
 
 import java.util.List;
 
@@ -17,31 +16,42 @@ public class TransactionService {
     private final TransactionRepository repo;
     private final RiskConfig riskConfig;
 
-    public TransactionService(PromptGeneratorService promptGen, EmbeddingService embedSvc,
-                              FraudDetectionService fraudDetectionService, TransactionRepository repo, RiskConfig riskConfig) {
+    public TransactionService(
+            PromptGeneratorService promptGen,
+            EmbeddingService embedSvc,
+            FraudDetectionService fraudDetectionService,
+            TransactionRepository repo,
+            RiskConfig riskConfig
+    ) {
         this.promptGen = promptGen;
         this.embedSvc = embedSvc;
         this.fraudDetectionService = fraudDetectionService;
         this.repo = repo;
-        this.riskConfig  = riskConfig;
+        this.riskConfig = riskConfig;
     }
 
-    public Mono<TransactionEntity> process(TransactionInput input) {
+    public TransactionEntity process(TransactionInput input) {
+        // Generate prompt and embedding synchronously
         String prompt = promptGen.generatePrompt(input, riskConfig);
-        return embedSvc.generateEmbedding(prompt)
-                .map(vector -> {
-                    TransactionEntity e = new TransactionEntity();
-                    e.setAmount(input.getAmount());
-                    e.setChannel(input.getChannel());
-                    e.setTime(input.getTime());
-                    e.setCountry(input.getCountry());
-                    e.setAccountAgeDays(input.getAccountAgeDays());
-                    e.setActivitySummary(input.getActivitySummary());
-                    e.setEmbedding(vector);
-                    boolean mule = fraudDetectionService.isSimilarToKnownMule(vector) || fraudDetectionService.isSuspiciousInflowOutflowPattern(input.getAmount());
-                    e.setMule(mule);
-                    return repo.save(e);
-                });
+        float[] vector = embedSvc.generateEmbedding(prompt);
+
+        // Build entity
+        TransactionEntity entity = new TransactionEntity();
+        entity.setAmount(input.getAmount());
+        entity.setChannel(input.getChannel());
+        entity.setTime(input.getTime());
+        entity.setCountry(input.getCountry());
+        entity.setAccountAgeDays(input.getAccountAgeDays());
+        entity.setActivitySummary(input.getActivitySummary());
+        entity.setEmbedding(vector);
+
+        // Fraud checks
+        boolean isMule = fraudDetectionService.isSimilarToKnownMule(vector)
+                || fraudDetectionService.isSuspiciousInflowOutflowPattern(input.getAmount());
+        entity.setMule(isMule);
+
+        // Persist and return
+        return repo.save(entity);
     }
 
     public List<TransactionEntity> listMules() {
