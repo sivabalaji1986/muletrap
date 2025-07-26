@@ -35,7 +35,7 @@ public class TransactionService {
                     e.setAccountAgeDays(input.getAccountAgeDays());
                     e.setActivitySummary(input.getActivitySummary());
                     e.setEmbedding(vector);
-                    boolean mule = fraudDetectionService.isSimilarToKnownMule(vector, 0.9f) || fraudDetectionService.isSuspiciousInflowOutflowPattern(input.getAmount());
+                    boolean mule = fraudDetectionService.isSimilarToKnownMule(vector) || fraudDetectionService.isSuspiciousInflowOutflowPattern(input.getAmount());
                     e.setMule(mule);
                     return repo.save(e);
                 });
