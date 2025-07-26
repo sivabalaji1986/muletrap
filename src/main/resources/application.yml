@@ -1,0 +1,15 @@
+server:
+  port: 8688
+  servlet:
+    contextPath: /api
+
+spring:
+  profiles:
+    default: database
+
+management:
+  endpoints:
+    web:
+      base-path: /actuator
+      exposure:
+        include: health
