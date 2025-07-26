@@ -1,0 +1,10 @@
+risk:
+  amount:
+    low: 0
+    medium: 1000
+    high: 5000
+  highRiskCountries:
+    - Mordor
+    - Isengard
+    - Angmar
+  newAccountDays: 90

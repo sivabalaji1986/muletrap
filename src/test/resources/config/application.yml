@@ -1,0 +1,28 @@
+server:
+  port: 8688
+  servlet:
+    contextPath: /api
+
+spring:
+  profiles:
+    include: database, muletrp
+
+logging:
+  file:
+    name: logs/muletrap.log
+  level:
+    root: DEBUG
+
+management:
+  endpoints:
+    web:
+      base-path: /actuator
+      exposure:
+        include: health
+  endpoint:
+    health:
+      show-details: never
+
+springdoc:
+  api-docs:
+    path: /v3/api-docs
