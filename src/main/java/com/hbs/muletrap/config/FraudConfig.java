@@ -9,9 +9,18 @@ import org.springframework.stereotype.Component;
 @Data
 public class FraudConfig {
     private double similarityThreshold;
-    private Inflow inflow;
-    private Outflow outflow;
+    private Inflow inflow = new Inflow();
+    private Outflow outflow = new Outflow();
 
-    @Data public static class Inflow { private int count; private double maxAmount; }
-    @Data public static class Outflow { private int count; private double minAmount; }
+    @Data
+    public static class Inflow {
+        private int count = 0;
+        private double maxAmount = 0.0;
+    }
+
+    @Data
+    public static class Outflow {
+        private int count = 0;
+        private double minAmount = 0.0;
+    }
 }
