@@ -11,7 +11,7 @@ logging:
   file:
     name: logs/muletrap.log
   level:
-    root: DEBUG
+    root: INFO
 
 management:
   endpoints:

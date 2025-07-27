@@ -5,13 +5,13 @@ server:
 
 spring:
   profiles:
-    include: database, muletrp
+    include: database, muletrap
 
 logging:
   file:
     name: logs/muletrap.log
   level:
-    root: DEBUG
+    root: INFO
 
 management:
   endpoints:
