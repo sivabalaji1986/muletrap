@@ -1,6 +1,6 @@
 spring:
   datasource:
-    url: jdbc:postgresql://localhost:5432/muletrapdb?currentSchema=muletrapschema
+    url: jdbc:postgresql://localhost:5432/muletrapdb?currentSchema=muletrapschema,public
     username: muletrapadmin
     password: ${mule_db_password}
     driver-class-name: org.postgresql.Driver
@@ -18,3 +18,8 @@ spring:
     hibernate:
       ddl-auto: none
     show-sql: true
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+        default_schema: muletrapschema
+        searchpath: muletrapschema,public
