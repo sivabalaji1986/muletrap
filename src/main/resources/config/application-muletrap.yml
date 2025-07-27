@@ -8,3 +8,12 @@ risk:
     - Isengard
     - Angmar
   newAccountDays: 90
+
+fraud:
+  similarity-threshold: 0.90
+  inflow:
+    count: 3
+    max-amount: 100.0
+  outflow:
+    count: 1
+    min-amount: 500.0
