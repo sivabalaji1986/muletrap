@@ -2,6 +2,9 @@ package com.hbs.muletrap.entity;
 
 import jakarta.persistence.*;
 import lombok.Data;
+import org.hibernate.annotations.Array;
+import org.hibernate.annotations.JdbcTypeCode;
+import org.hibernate.type.SqlTypes;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
@@ -22,6 +25,11 @@ public class TransactionEntity {
     private int accountAgeDays;
     private String activitySummary;
 
+    /**
+     * Hibernate‑vector will now handle pgvector VECTOR(768) natively.
+     */
+    @JdbcTypeCode(SqlTypes.VECTOR)
+    @Array(length = 768)
     @Column(columnDefinition = "vector(768)")
     private float[] embedding;
 

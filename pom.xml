@@ -45,6 +45,8 @@
 		<postgresql.version>42.7.7</postgresql.version>
 		<springdoc-openapi.version>2.8.9</springdoc-openapi.version>
 		<reactor.version>3.8.0-M5</reactor.version>
+		<pgvector.version>0.1.6</pgvector.version>
+		<hibernate-vector.version>6.6.22.Final</hibernate-vector.version>
 	</properties>
 	<dependencies>
 		<!-- Spring Boot Starters -->
@@ -127,6 +129,19 @@
 			<scope>test</scope>
 		</dependency>
 
+		<!-- pgvector JDBC support -->
+		<dependency>
+			<groupId>com.pgvector</groupId>
+			<artifactId>pgvector</artifactId>
+			<version>${pgvector.version}</version>
+		</dependency>
+
+		<!-- Hibernate 6’s built‑in vector module (matches Spring Boot 3.5.4 / Hibernate 6.6.22) -->
+		<dependency>
+			<groupId>org.hibernate.orm</groupId>
+			<artifactId>hibernate-vector</artifactId>
+			<version>${hibernate-vector.version}</version>
+		</dependency>
 	</dependencies>
 
 	<build>
