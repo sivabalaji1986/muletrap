@@ -16,10 +16,10 @@ import java.util.List;
 @RestController
 @RequestMapping("/transactions")
 public class TransactionController {
-    private final TransactionService txnService;
+    private final TransactionService transactionService;
 
-    public TransactionController(TransactionService txnService) {
-        this.txnService = txnService;
+    public TransactionController(TransactionService transactionService) {
+        this.transactionService = transactionService;
     }
 
     private static final Logger logger = LoggerFactory.getLogger(TransactionController.class);
@@ -27,24 +27,24 @@ public class TransactionController {
     @PostMapping
     public ResponseEntity<TransactionResponse> submit(@Valid @RequestBody TransactionInput input) {
         logger.info("TransactionController - Received transaction input: {}", input);
-        TransactionResponse saved = txnService.process(input);
-        logger.info("TransactionController - Processed transaction response: {}", saved);
-        if(saved == null) {
+        TransactionResponse transactionResponse = transactionService.process(input);
+        logger.info("TransactionController - Processed transaction response: {}", transactionResponse);
+        if(transactionResponse == null) {
             return ResponseEntity.badRequest().build();
         } else{
-            return ResponseEntity.ok(saved);
+            return ResponseEntity.ok(transactionResponse);
         }
     }
 
     @GetMapping("/similar")
     public ResponseEntity<List<TransactionResponse>> similar() {
         logger.info("TransactionController - Fetching similar transactions");
-        List<TransactionResponse> mules = txnService.listMules();
-        logger.info("TransactionController - Found similar transactions: {}", mules);
-        if(mules == null || mules.isEmpty()) {
+        List<TransactionResponse> listedMules = transactionService.listMules();
+        logger.info("TransactionController - Found similar transactions: {}", listedMules);
+        if(listedMules == null || listedMules.isEmpty()) {
             return ResponseEntity.noContent().build();
         } else{
-            return ResponseEntity.ok(mules);
+            return ResponseEntity.ok(listedMules);
         }
     }
 }
