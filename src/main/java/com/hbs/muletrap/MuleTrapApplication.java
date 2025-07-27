@@ -6,7 +6,6 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 
 @SpringBootApplication
-@EnableConfigurationProperties(FraudConfig.class)
 public class MuleTrapApplication {
     public static void main(String[] args) {
         SpringApplication.run(MuleTrapApplication.class, args);

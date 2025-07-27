@@ -5,6 +5,8 @@ import com.hbs.muletrap.dto.TransactionInput;
 import com.hbs.muletrap.dto.TransactionResponse;
 import com.hbs.muletrap.entity.TransactionEntity;
 import com.hbs.muletrap.repository.TransactionRepository;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -32,40 +34,48 @@ public class TransactionService {
         this.riskConfig = riskConfig;
     }
 
+    private static final Logger logger = LoggerFactory.getLogger(TransactionService.class);
+
     public TransactionResponse process(TransactionInput input) {
+        logger.info("Processing transaction: {} & RiskConfig {}", input, riskConfig);
         // Generate prompt and embedding synchronously
         String prompt = promptGen.generatePrompt(input, riskConfig);
+        logger.info("Generated prompt: {}", prompt);
         float[] vector = embedSvc.generateEmbedding(prompt);
+        logger.info("Generated embedding vector: {}", vector);
 
         // Build entity
-        TransactionEntity entity = new TransactionEntity();
-        entity.setAmount(input.getAmount());
-        entity.setChannel(input.getChannel());
-        entity.setTime(input.getTime());
-        entity.setCountry(input.getCountry());
-        entity.setAccountAgeDays(input.getAccountAgeDays());
-        entity.setActivitySummary(input.getActivitySummary());
-        entity.setEmbedding(vector);
+        TransactionEntity transactionEntity = new TransactionEntity();
+        transactionEntity.setAmount(input.getAmount());
+        transactionEntity.setChannel(input.getChannel());
+        transactionEntity.setTime(input.getTime());
+        transactionEntity.setCountry(input.getCountry());
+        transactionEntity.setAccountAgeDays(input.getAccountAgeDays());
+        transactionEntity.setActivitySummary(input.getActivitySummary());
+        transactionEntity.setEmbedding(vector);
 
         // Fraud checks
         boolean isMule = fraudDetectionService.isSimilarToKnownMule(vector)
                 || fraudDetectionService.isSuspiciousInflowOutflowPattern(input.getAmount());
-        entity.setMule(isMule);
+        transactionEntity.setMule(isMule);
+        logger.info("Transaction entity: {}", transactionEntity);
 
         // Persist
-        TransactionEntity transactionEntity = repo.save(entity);
-        return toResponse(transactionEntity);
+        TransactionEntity transactionEntityResponse = repo.save(transactionEntity);
+        return toTransactionResponse(transactionEntityResponse);
     }
 
     public List<TransactionResponse> listMules() {
         List<TransactionEntity> transactionEntities = repo.findTop10ByIsMuleTrueOrderByCreatedAtDesc();
-        List<TransactionResponse> dtoList = transactionEntities.stream()
-                .map(this::toResponse)
+        logger.info("Found {} mules in the database", transactionEntities.size());
+        List<TransactionResponse> transactionResponseList = transactionEntities.stream()
+                .map(this::toTransactionResponse)
                 .collect(Collectors.toList());
-        return dtoList;
+        logger.info("Converted {} mules to response DTOs", transactionResponseList.size());
+        return transactionResponseList;
     }
 
-    private TransactionResponse toResponse(TransactionEntity e) {
+    private TransactionResponse toTransactionResponse(TransactionEntity e) {
         TransactionResponse resp = new TransactionResponse();
         resp.setId(e.getId());
         resp.setAmount(e.getAmount());
