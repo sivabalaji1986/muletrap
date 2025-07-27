@@ -14,23 +14,23 @@ import java.util.stream.Collectors;
 
 @Service
 public class TransactionService {
-    private final PromptGeneratorService promptGen;
-    private final EmbeddingService embedSvc;
+    private final PromptGeneratorService promptGeneratorService;
+    private final EmbeddingService embeddingService;
     private final FraudDetectionService fraudDetectionService;
-    private final TransactionRepository repo;
+    private final TransactionRepository transactionRepository;
     private final RiskConfig riskConfig;
 
     public TransactionService(
-            PromptGeneratorService promptGen,
-            EmbeddingService embedSvc,
+            PromptGeneratorService promptGeneratorService,
+            EmbeddingService embeddingService,
             FraudDetectionService fraudDetectionService,
-            TransactionRepository repo,
+            TransactionRepository transactionRepository,
             RiskConfig riskConfig
     ) {
-        this.promptGen = promptGen;
-        this.embedSvc = embedSvc;
+        this.promptGeneratorService = promptGeneratorService;
+        this.embeddingService = embeddingService;
         this.fraudDetectionService = fraudDetectionService;
-        this.repo = repo;
+        this.transactionRepository = transactionRepository;
         this.riskConfig = riskConfig;
     }
 
@@ -39,9 +39,9 @@ public class TransactionService {
     public TransactionResponse process(TransactionInput input) {
         logger.info("Processing transaction: {} & RiskConfig {}", input, riskConfig);
         // Generate prompt and embedding synchronously
-        String prompt = promptGen.generatePrompt(input, riskConfig);
+        String prompt = promptGeneratorService.generatePrompt(input, riskConfig);
         logger.info("Generated prompt: {}", prompt);
-        float[] vector = embedSvc.generateEmbedding(prompt);
+        float[] vector = embeddingService.generateEmbedding(prompt);
         logger.info("Generated embedding vector: {}", vector);
 
         // Build entity
@@ -61,12 +61,12 @@ public class TransactionService {
         logger.info("Transaction entity: {}", transactionEntity);
 
         // Persist
-        TransactionEntity transactionEntityResponse = repo.save(transactionEntity);
+        TransactionEntity transactionEntityResponse = transactionRepository.save(transactionEntity);
         return toTransactionResponse(transactionEntityResponse);
     }
 
     public List<TransactionResponse> listMules() {
-        List<TransactionEntity> transactionEntities = repo.findTop10ByIsMuleTrueOrderByCreatedAtDesc();
+        List<TransactionEntity> transactionEntities = transactionRepository.findTop10ByIsMuleTrueOrderByCreatedAtDesc();
         logger.info("Found {} mules in the database", transactionEntities.size());
         List<TransactionResponse> transactionResponseList = transactionEntities.stream()
                 .map(this::toTransactionResponse)
@@ -76,16 +76,16 @@ public class TransactionService {
     }
 
     private TransactionResponse toTransactionResponse(TransactionEntity e) {
-        TransactionResponse resp = new TransactionResponse();
-        resp.setId(e.getId());
-        resp.setAmount(e.getAmount());
-        resp.setChannel(e.getChannel());
-        resp.setTime(e.getTime());
-        resp.setCountry(e.getCountry());
-        resp.setAccountAgeDays(e.getAccountAgeDays());
-        resp.setActivitySummary(e.getActivitySummary());
-        resp.setMule(e.isMule());
-        resp.setCreatedAt(e.getCreatedAt());
-        return resp;
+        TransactionResponse transactionResponse = new TransactionResponse();
+        transactionResponse.setId(e.getId());
+        transactionResponse.setAmount(e.getAmount());
+        transactionResponse.setChannel(e.getChannel());
+        transactionResponse.setTime(e.getTime());
+        transactionResponse.setCountry(e.getCountry());
+        transactionResponse.setAccountAgeDays(e.getAccountAgeDays());
+        transactionResponse.setActivitySummary(e.getActivitySummary());
+        transactionResponse.setMule(e.isMule());
+        transactionResponse.setCreatedAt(e.getCreatedAt());
+        return transactionResponse;
     }
 }
