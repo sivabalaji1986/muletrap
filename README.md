@@ -90,8 +90,8 @@ CREATE TABLE muletrapschema.transactions (
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
--- Grant minimal privileges
-GRANT SELECT, INSERT, UPDATE ON muletrapschema.transactions TO muletrapadmin;
+-- Grant required privileges
+GRANT SELECT, INSERT, UPDATE, DELETE ON muletrapschema.transactions TO muletrapadmin;
 ```
 
 ### 3. (Optional) Connect with DBeaver
