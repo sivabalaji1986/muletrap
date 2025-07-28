@@ -19,6 +19,7 @@ public class TransactionEntity {
     @GeneratedValue(strategy = GenerationType.AUTO)
     private UUID id;
 
+    private String customerId;
     private BigDecimal amount;
     private String channel;
     private String time;
