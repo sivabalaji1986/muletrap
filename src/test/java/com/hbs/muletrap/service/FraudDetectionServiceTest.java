@@ -1,6 +1,7 @@
 package com.hbs.muletrap.service;
 
 import com.hbs.muletrap.config.FraudConfig;
+import com.hbs.muletrap.dto.TransactionDirection;
 import com.hbs.muletrap.entity.TransactionEntity;
 import com.hbs.muletrap.repository.TransactionRepository;
 import org.junit.jupiter.api.Test;
@@ -52,8 +53,11 @@ class FraudDetectionServiceTest {
 
         // Create three transactions: two small (inflow) and one large (outflow)
         TransactionEntity t1 = new TransactionEntity(); t1.setAmount(BigDecimal.valueOf(50));
+        t1.setDirection(TransactionDirection.INBOUND);
         TransactionEntity t2 = new TransactionEntity(); t2.setAmount(BigDecimal.valueOf(40));
+        t2.setDirection(TransactionDirection.INBOUND);
         TransactionEntity t3 = new TransactionEntity(); t3.setAmount(BigDecimal.valueOf(60));
+        t3.setDirection(TransactionDirection.OUTBOUND);
 
         // Mock the repo to return these when looking at the last hour
         when(mockRepo.findByCreatedAtAfter(any(LocalDateTime.class)))
