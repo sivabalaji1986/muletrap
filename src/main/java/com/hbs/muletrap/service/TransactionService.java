@@ -62,7 +62,7 @@ public class TransactionService {
 
         // Fraud checks
         boolean isMule = fraudDetectionService.isSimilarToCustomerMules(input.getCustomerId(), vector)
-                || fraudDetectionService.isSuspiciousInflowOutflowPattern(input.getCustomerId());
+                || fraudDetectionService.isSuspiciousInflowOutflowPattern(input.getCustomerId(), input.getAmount(), input.getDirection());
         transactionEntity.setMule(isMule);
         logger.info("Transaction entity: {}", transactionEntity);
 

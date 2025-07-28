@@ -78,12 +78,21 @@ public class FraudDetectionService {
     /**
      * Check for suspicious pattern: N small INBOUND and M large OUTBOUND within the past hour for the same customer.
      */
-    public boolean isSuspiciousInflowOutflowPattern(String customerId) {
+    public boolean isSuspiciousInflowOutflowPattern(String customerId, BigDecimal amount, TransactionDirection direction) {
         LocalDateTime cutoff = LocalDateTime.now().minusHours(1);
         List<TransactionEntity> recent = transactionRepository
                 .findByCustomerIdAndCreatedAtAfter(customerId, cutoff);
 
         logger.info("{} recent transactions for customer {} since {}", recent.size(), customerId, cutoff);
+
+        // Include the current transaction in the list temporarily
+        TransactionEntity current = new TransactionEntity();
+        current.setCustomerId(customerId);
+        current.setAmount(amount);
+        current.setDirection(direction);
+        recent.add(current);
+
+        logger.info("Added new transaction, updated count {}", recent.size());
 
         long inflows = recent.stream()
                 .filter(t -> t.getDirection() == TransactionDirection.INBOUND
