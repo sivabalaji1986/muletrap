@@ -51,6 +51,7 @@ public class TransactionService {
         transactionEntity.setTime(input.getTime());
         transactionEntity.setCountry(input.getCountry());
         transactionEntity.setAccountAgeDays(input.getAccountAgeDays());
+        transactionEntity.setDirection(input.getDirection());
         transactionEntity.setActivitySummary(input.getActivitySummary());
         transactionEntity.setEmbedding(vector);
 
@@ -83,6 +84,7 @@ public class TransactionService {
         transactionResponse.setTime(e.getTime());
         transactionResponse.setCountry(e.getCountry());
         transactionResponse.setAccountAgeDays(e.getAccountAgeDays());
+        transactionResponse.setDirection(e.getDirection());
         transactionResponse.setActivitySummary(e.getActivitySummary());
         transactionResponse.setMule(e.isMule());
         transactionResponse.setCreatedAt(e.getCreatedAt());
