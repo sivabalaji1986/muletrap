@@ -28,4 +28,10 @@ public class MuleTrapConstants {
 
     public static final String OLLAMA_EMBEDDINGS_RES_EMBEDDING_KEY      = "embedding";
 
+    public static final String OPEN_API_SPEC_TITLE       = "MuleTrap API";
+
+    public static final String OPEN_API_SPEC_DESCRIPTION      = "Spring Boot API for Mule Account Detection using Vector Embeddings";
+
+    public static final String OPEN_API_SPEC_VERSION      = "1.0.0";
+
 }
