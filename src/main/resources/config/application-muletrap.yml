@@ -13,7 +13,7 @@ detection:
     similarity-threshold: 0.9
     inflow:
       count: 3
-      max-amount: 100.0
+      max-amount: 5000.0
     outflow:
       count: 1
-      min-amount: 500.0
+      min-amount: 9000.0
