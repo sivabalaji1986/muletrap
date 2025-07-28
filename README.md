@@ -79,12 +79,13 @@ CREATE EXTENSION IF NOT EXISTS vector;
 -- Create transactions table
 CREATE TABLE muletrapschema.transactions (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  amount NUMERIC,
-  channel TEXT,
-  time TEXT,
-  country TEXT,
-  account_age_days INTEGER,
+  amount NUMERIC NOT NULL,
+  channel TEXT NOT NULL,
+  time TEXT NOT NULL,
+  country TEXT NOT NULL,
+  account_age_days INTEGER NOT NULL,
   activity_summary TEXT,
+  direction TEXT NOT NULL,
   embedding VECTOR(768),
   is_mule BOOLEAN,
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
