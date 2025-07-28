@@ -79,6 +79,7 @@ CREATE EXTENSION IF NOT EXISTS vector;
 -- Create transactions table
 CREATE TABLE muletrapschema.transactions (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  customer_id TEXT NOT NULL,
   amount NUMERIC NOT NULL,
   channel TEXT NOT NULL,
   time TEXT NOT NULL,
