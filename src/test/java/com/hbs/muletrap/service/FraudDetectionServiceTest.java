@@ -61,7 +61,7 @@ class FraudDetectionServiceTest {
                 .thenReturn(List.of(mule));
 
         // call service
-        boolean result = service.isSimilarToKnownMule(customerId, emb);
+        boolean result = service.isSimilarToCustomerMules(customerId, emb);
 
         assertTrue(result, "Should detect similarity to the identical mule embedding");
 

@@ -61,7 +61,7 @@ public class TransactionService {
         transactionEntity.setEmbedding(vector);
 
         // Fraud checks
-        boolean isMule = fraudDetectionService.isSimilarToKnownMule(input.getCustomerId(), vector)
+        boolean isMule = fraudDetectionService.isSimilarToCustomerMules(input.getCustomerId(), vector)
                 || fraudDetectionService.isSuspiciousInflowOutflowPattern(input.getCustomerId());
         transactionEntity.setMule(isMule);
         logger.info("Transaction entity: {}", transactionEntity);
