@@ -1,6 +1,7 @@
 package com.hbs.muletrap.service;
 
 import com.hbs.muletrap.config.FraudConfig;
+import com.hbs.muletrap.dto.TransactionDirection;
 import com.hbs.muletrap.entity.TransactionEntity;
 import com.hbs.muletrap.repository.TransactionRepository;
 import org.slf4j.Logger;
@@ -43,11 +44,17 @@ public class FraudDetectionService {
         List<TransactionEntity> recent = transactionRepository.findByCreatedAtAfter(LocalDateTime.now().minusHours(1));
         logger.info("Checking inflow/outflow pattern for recent transactions: {}", recent.size());
         long inflows = recent.stream()
-                .filter(t -> t.getAmount().compareTo(BigDecimal.valueOf(fraudConfig.getInflow().getMaxAmount())) < 0)
+                .filter(t -> t.getDirection() == TransactionDirection.INBOUND
+                        && t.getAmount().compareTo(
+                        BigDecimal.valueOf(fraudConfig.getInflow().getMaxAmount()))
+                        < 0)
                 .count();
         logger.info("Number of inflows: {}", inflows);
         long outflows = recent.stream()
-                .filter(t -> t.getAmount().compareTo(BigDecimal.valueOf(fraudConfig.getOutflow().getMinAmount())) > 0)
+                .filter(t -> t.getDirection() == TransactionDirection.OUTBOUND
+                        && t.getAmount().compareTo(
+                        BigDecimal.valueOf(fraudConfig.getOutflow().getMinAmount()))
+                        > 0)
                 .count();
         logger.info("Number of outflows: {}", outflows);
         return inflows >= fraudConfig.getInflow().getCount() && outflows >= fraudConfig.getOutflow().getCount();
