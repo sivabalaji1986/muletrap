@@ -1,69 +1,103 @@
 package com.hbs.muletrap.service;
 
 import com.hbs.muletrap.config.FraudConfig;
+import com.hbs.muletrap.config.FraudConfig.Inflow;
+import com.hbs.muletrap.config.FraudConfig.Outflow;
 import com.hbs.muletrap.dto.TransactionDirection;
 import com.hbs.muletrap.entity.TransactionEntity;
 import com.hbs.muletrap.repository.TransactionRepository;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.mockito.Mockito;
+import org.mockito.ArgumentCaptor;
+import org.springframework.data.domain.PageRequest;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 class FraudDetectionServiceTest {
 
+    private TransactionRepository transactionRepository;
+    private FraudConfig fraudConfig;
+    private FraudDetectionService service;
+    private final String customerId = UUID.randomUUID().toString();
+
+    @BeforeEach
+    void setUp() {
+        transactionRepository = mock(TransactionRepository.class);
+        fraudConfig = new FraudConfig();
+        // set up fraud thresholds
+        fraudConfig.setSimilarityThreshold(0.8);
+        Inflow inflow = new Inflow();
+        inflow.setCount(2);
+        inflow.setMaxAmount(100.0);
+        fraudConfig.setInflow(inflow);
+        Outflow outflow = new Outflow();
+        outflow.setCount(1);
+        outflow.setMinAmount(50.0);
+        fraudConfig.setOutflow(outflow);
+
+        service = new FraudDetectionService(transactionRepository, fraudConfig);
+    }
+
     @Test
     void testSimilarToMule() {
-        // 1) Mock the repository
-        TransactionRepository mockRepo = Mockito.mock(TransactionRepository.class);
-        // 2) Create a FraudConfig with a low threshold
-        FraudConfig cfg = new FraudConfig();
-        cfg.setSimilarityThreshold(0.5);
-        // 3) Wire up the service with both repo and config
-        FraudDetectionService svc = new FraudDetectionService(mockRepo, cfg);
-
-        // 4) Prepare a “known mule” embedding
+        // create a dummy embedding
+        float[] emb = new float[] {1f, 2f, 3f};
+        // create a “known mule” with an identical embedding
         TransactionEntity mule = new TransactionEntity();
-        mule.setEmbedding(new float[]{1f, 0f});
-        when(mockRepo.findTop10ByIsMuleTrueOrderByCreatedAtDesc())
+        mule.setId(UUID.randomUUID());
+        mule.setCustomerId(customerId);
+        mule.setMule(true);
+        mule.setEmbedding(new float[] {1f, 2f, 3f});
+
+        // mock the repo to return that mule when fetching the last 10
+        when(transactionRepository.findTop10ByCustomerIdAndIsMuleTrueOrderByCreatedAtDesc(
+                eq(customerId), any(PageRequest.class)))
                 .thenReturn(List.of(mule));
 
-        // 5) Call the new method signature
-        assertTrue(svc.isSimilarToKnownMule(new float[]{1f, 0f}));
+        // call service
+        boolean result = service.isSimilarToKnownMule(customerId, emb);
+
+        assertTrue(result, "Should detect similarity to the identical mule embedding");
+
+        // verify we passed correct PageRequest
+        ArgumentCaptor<PageRequest> captor = ArgumentCaptor.forClass(PageRequest.class);
+        verify(transactionRepository).findTop10ByCustomerIdAndIsMuleTrueOrderByCreatedAtDesc(eq(customerId), captor.capture());
+        assertEquals(10, captor.getValue().getPageSize());
     }
 
     @Test
     void testSuspiciousFlow() {
-        TransactionRepository mockRepo = Mockito.mock(TransactionRepository.class);
-        FraudConfig cfg = new FraudConfig();
-        // configure inflow/outflow from application.yml values
-        cfg.setInflow(new FraudConfig.Inflow());
-        cfg.getInflow().setCount(2);
-        cfg.getInflow().setMaxAmount(100);
-        cfg.setOutflow(new FraudConfig.Outflow());
-        cfg.getOutflow().setCount(1);
-        cfg.getOutflow().setMinAmount(50);
+        LocalDateTime cutoff = LocalDateTime.now().minusHours(1);
 
-        FraudDetectionService svc = new FraudDetectionService(mockRepo, cfg);
+        // create 2 small inbound txns and 1 large outbound txn
+        TransactionEntity in1 = new TransactionEntity();
+        in1.setCustomerId(customerId);
+        in1.setDirection(TransactionDirection.INBOUND);
+        in1.setAmount(BigDecimal.valueOf(10));
 
-        // Create three transactions: two small (inflow) and one large (outflow)
-        TransactionEntity t1 = new TransactionEntity(); t1.setAmount(BigDecimal.valueOf(50));
-        t1.setDirection(TransactionDirection.INBOUND);
-        TransactionEntity t2 = new TransactionEntity(); t2.setAmount(BigDecimal.valueOf(40));
-        t2.setDirection(TransactionDirection.INBOUND);
-        TransactionEntity t3 = new TransactionEntity(); t3.setAmount(BigDecimal.valueOf(60));
-        t3.setDirection(TransactionDirection.OUTBOUND);
+        TransactionEntity in2 = new TransactionEntity();
+        in2.setCustomerId(customerId);
+        in2.setDirection(TransactionDirection.INBOUND);
+        in2.setAmount(BigDecimal.valueOf(20));
 
-        // Mock the repo to return these when looking at the last hour
-        when(mockRepo.findByCreatedAtAfter(any(LocalDateTime.class)))
-                .thenReturn(List.of(t1, t2, t3));
+        TransactionEntity out1 = new TransactionEntity();
+        out1.setCustomerId(customerId);
+        out1.setDirection(TransactionDirection.OUTBOUND);
+        out1.setAmount(BigDecimal.valueOf(100));
 
-        // Since 2 inflows <100 and 1 outflow >50, it should be flagged
-        assertTrue(svc.isSuspiciousInflowOutflowPattern(BigDecimal.ZERO));
+        // mock repo to return these three
+        when(transactionRepository.findByCustomerIdAndCreatedAtAfter(eq(customerId), any(LocalDateTime.class)))
+                .thenReturn(List.of(in1, in2, out1));
+
+        // call service
+        boolean flag = service.isSuspiciousInflowOutflowPattern(customerId);
+
+        assertTrue(flag, "Should detect suspicious inflow/outflow pattern (2 inbounds, 1 outbound)");
     }
 }
