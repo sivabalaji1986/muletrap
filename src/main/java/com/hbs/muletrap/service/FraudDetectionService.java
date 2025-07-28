@@ -31,7 +31,7 @@ public class FraudDetectionService {
     /**
      * Check if a new embedding is similar to any of the last 10 mule embeddings for the same customer.
      */
-    public boolean isSimilarToKnownMule(String customerId, float[] emb) {
+    public boolean isSimilarToCustomerMules(String customerId, float[] emb) {
         logger.info("Checking similarity to known mules for customer {} with embedding length {}", customerId, emb.length);
         double threshold = detectionConfig.getFraud().getSimilarityThreshold();
         Pageable limit10 = PageRequest.of(0, 10);
@@ -51,6 +51,27 @@ public class FraudDetectionService {
             }
         }
         logger.info("No similar mules found for customer {}", customerId);
+        return false;
+    }
+
+    public boolean isSimilarToAnyKnownMule(float[] emb) {
+        logger.info("Checking similarity to known mules with embedding length {}", emb.length);
+        double threshold = detectionConfig.getFraud().getSimilarityThreshold();
+
+        List<TransactionEntity> knownMules = transactionRepository
+                .findTop10ByIsMuleTrueOrderByCreatedAtDesc();
+        for (TransactionEntity mule : knownMules) {
+            float[] muleEmb = mule.getEmbedding();
+            if (muleEmb != null) {
+                float sim = cosineSimilarity(emb, muleEmb);
+                logger.info("isSimilarToAnyKnownMule - Comparing to mule {}: similarity = {}", mule.getId(), sim);
+                if (sim > threshold) {
+                    logger.info("isSimilarToAnyKnownMule - Found similar mule {} with similarity {} > threshold {}", mule.getId(), sim, threshold);
+                    return true;
+                }
+            }
+        }
+        logger.info("No similar mules found");
         return false;
     }
 
