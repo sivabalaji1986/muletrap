@@ -37,10 +37,11 @@ public class TransactionController {
     }
 
     @GetMapping("/similar")
-    public ResponseEntity<List<TransactionResponse>> similar() {
-        logger.info("TransactionController - Fetching similar transactions");
-        List<TransactionResponse> listedMules = transactionService.listMules();
+    public ResponseEntity<List<TransactionResponse>> similar(@RequestParam(name="country", required=false) String country) {
+        logger.info("TransactionController - Fetching mule transactions, country filter={}", country);
+        List<TransactionResponse> listedMules = transactionService.listMules(country);
         logger.info("TransactionController - Found similar transactions: {}", listedMules);
+
         if(listedMules == null || listedMules.isEmpty()) {
             return ResponseEntity.noContent().build();
         } else{
