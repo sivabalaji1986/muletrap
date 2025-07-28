@@ -46,6 +46,7 @@ public class TransactionService {
 
         // Build entity
         TransactionEntity transactionEntity = new TransactionEntity();
+        transactionEntity.setCustomerId(input.getCustomerId());
         transactionEntity.setAmount(input.getAmount());
         transactionEntity.setChannel(input.getChannel());
         transactionEntity.setTime(input.getTime());
@@ -56,8 +57,8 @@ public class TransactionService {
         transactionEntity.setEmbedding(vector);
 
         // Fraud checks
-        boolean isMule = fraudDetectionService.isSimilarToKnownMule(vector)
-                || fraudDetectionService.isSuspiciousInflowOutflowPattern(input.getAmount());
+        boolean isMule = fraudDetectionService.isSimilarToKnownMule(input.getCustomerId(), vector)
+                || fraudDetectionService.isSuspiciousInflowOutflowPattern(input.getCustomerId());
         transactionEntity.setMule(isMule);
         logger.info("Transaction entity: {}", transactionEntity);
 
@@ -76,18 +77,19 @@ public class TransactionService {
         return transactionResponseList;
     }
 
-    private TransactionResponse toTransactionResponse(TransactionEntity e) {
+    private TransactionResponse toTransactionResponse(TransactionEntity transactionEntity) {
         TransactionResponse transactionResponse = new TransactionResponse();
-        transactionResponse.setId(e.getId());
-        transactionResponse.setAmount(e.getAmount());
-        transactionResponse.setChannel(e.getChannel());
-        transactionResponse.setTime(e.getTime());
-        transactionResponse.setCountry(e.getCountry());
-        transactionResponse.setAccountAgeDays(e.getAccountAgeDays());
-        transactionResponse.setDirection(e.getDirection());
-        transactionResponse.setActivitySummary(e.getActivitySummary());
-        transactionResponse.setMule(e.isMule());
-        transactionResponse.setCreatedAt(e.getCreatedAt());
+        transactionResponse.setId(transactionEntity.getId());
+        transactionResponse.setCustomerId(transactionEntity.getCustomerId());
+        transactionResponse.setAmount(transactionEntity.getAmount());
+        transactionResponse.setChannel(transactionEntity.getChannel());
+        transactionResponse.setTime(transactionEntity.getTime());
+        transactionResponse.setCountry(transactionEntity.getCountry());
+        transactionResponse.setAccountAgeDays(transactionEntity.getAccountAgeDays());
+        transactionResponse.setDirection(transactionEntity.getDirection());
+        transactionResponse.setActivitySummary(transactionEntity.getActivitySummary());
+        transactionResponse.setMule(transactionEntity.isMule());
+        transactionResponse.setCreatedAt(transactionEntity.getCreatedAt());
         return transactionResponse;
     }
 }
