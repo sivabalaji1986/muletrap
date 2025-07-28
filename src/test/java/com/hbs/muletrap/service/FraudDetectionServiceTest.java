@@ -11,6 +11,7 @@ import org.springframework.data.domain.PageRequest;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
@@ -93,10 +94,10 @@ class FraudDetectionServiceTest {
 
         // mock repo to return these three
         when(transactionRepository.findByCustomerIdAndCreatedAtAfter(eq(customerId), any(LocalDateTime.class)))
-                .thenReturn(List.of(in1, in2, out1));
+                .thenReturn(new ArrayList<>(List.of(in1, in2, out1)));
 
         // call service
-        boolean flag = service.isSuspiciousInflowOutflowPattern(customerId);
+        boolean flag = service.isSuspiciousInflowOutflowPattern(customerId, BigDecimal.valueOf(100), TransactionDirection.OUTBOUND);
 
         assertTrue(flag, "Should detect suspicious inflow/outflow pattern (2 inbounds, 1 outbound)");
     }
