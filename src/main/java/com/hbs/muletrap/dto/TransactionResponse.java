@@ -8,6 +8,7 @@ import java.util.UUID;
 @Data
 public class TransactionResponse {
     private UUID id;
+    private String customerId;
     private BigDecimal amount;
     private String channel;
     private String time;

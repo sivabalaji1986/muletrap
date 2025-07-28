@@ -8,6 +8,9 @@ import java.math.BigDecimal;
 
 @Data
 public class TransactionInput {
+    @NotBlank
+    private String customerId;
+
     @NotNull
     private BigDecimal amount;
 
