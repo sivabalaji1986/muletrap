@@ -28,5 +28,4 @@ public class MuleTrapConstants {
 
     public static final String OLLAMA_EMBEDDINGS_RES_EMBEDDING_KEY      = "embedding";
 
-
 }

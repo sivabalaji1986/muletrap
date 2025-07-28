@@ -1,6 +1,6 @@
 package com.hbs.muletrap.service;
 
-import com.hbs.muletrap.config.RiskConfig;
+import com.hbs.muletrap.config.DetectionConfig;
 import com.hbs.muletrap.dto.TransactionInput;
 import org.springframework.stereotype.Service;
 
@@ -17,7 +17,7 @@ public class PromptGeneratorService {
             Prior activity: %s.
             """;
 
-    public String generatePrompt(TransactionInput txn, RiskConfig config) {
+    public String generatePrompt(TransactionInput txn, DetectionConfig.RiskConfig config) {
         String amountCategory = categorizeAmount(txn.getAmount(), config);
         String countryRisk    = config.getHighRiskCountries().contains(txn.getCountry())
                 ? HIGH_RISK_LABEL
@@ -39,7 +39,7 @@ public class PromptGeneratorService {
         );
     }
 
-    private String categorizeAmount(BigDecimal amount, RiskConfig config) {
+    private String categorizeAmount(BigDecimal amount, DetectionConfig.RiskConfig config) {
         double value = amount.doubleValue();
         if (value >= config.getAmount().getHigh()) {
             return HIGH_VALUE_LABEL;

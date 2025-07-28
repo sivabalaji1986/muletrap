@@ -1,6 +1,6 @@
 package com.hbs.muletrap.service;
 
-import com.hbs.muletrap.config.RiskConfig;
+import com.hbs.muletrap.config.DetectionConfig;
 import com.hbs.muletrap.dto.TransactionInput;
 import com.hbs.muletrap.dto.TransactionResponse;
 import com.hbs.muletrap.entity.TransactionEntity;
@@ -18,28 +18,28 @@ public class TransactionService {
     private final EmbeddingService embeddingService;
     private final FraudDetectionService fraudDetectionService;
     private final TransactionRepository transactionRepository;
-    private final RiskConfig riskConfig;
+    private final DetectionConfig detectionConfig;
 
     public TransactionService(
             PromptGeneratorService promptGeneratorService,
             EmbeddingService embeddingService,
             FraudDetectionService fraudDetectionService,
             TransactionRepository transactionRepository,
-            RiskConfig riskConfig
+            DetectionConfig detectionConfig
     ) {
         this.promptGeneratorService = promptGeneratorService;
         this.embeddingService = embeddingService;
         this.fraudDetectionService = fraudDetectionService;
         this.transactionRepository = transactionRepository;
-        this.riskConfig = riskConfig;
+        this.detectionConfig = detectionConfig;
     }
 
     private static final Logger logger = LoggerFactory.getLogger(TransactionService.class);
 
     public TransactionResponse process(TransactionInput input) {
-        logger.info("Processing transaction: {} & RiskConfig {}", input, riskConfig);
+        logger.info("Processing transaction: {} & RiskConfig {}", input, detectionConfig.getRisk());
         // Generate prompt and embedding synchronously
-        String prompt = promptGeneratorService.generatePrompt(input, riskConfig);
+        String prompt = promptGeneratorService.generatePrompt(input, detectionConfig.getRisk());
         logger.info("Generated prompt: {}", prompt);
         float[] vector = embeddingService.generateEmbedding(prompt);
         logger.info("Generated embedding vector: {}", vector);

@@ -1,6 +1,6 @@
 package com.hbs.muletrap.service;
 
-import com.hbs.muletrap.config.FraudConfig;
+import com.hbs.muletrap.config.DetectionConfig;
 import com.hbs.muletrap.dto.TransactionDirection;
 import com.hbs.muletrap.entity.TransactionEntity;
 import com.hbs.muletrap.repository.TransactionRepository;
@@ -19,11 +19,11 @@ public class FraudDetectionService {
 
     private final TransactionRepository transactionRepository;
 
-    private final FraudConfig fraudConfig;
+    private final DetectionConfig detectionConfig;
 
-    public FraudDetectionService(TransactionRepository transactionRepository, FraudConfig fraudConfig) {
+    public FraudDetectionService(TransactionRepository transactionRepository, DetectionConfig detectionConfig) {
         this.transactionRepository = transactionRepository;
-        this.fraudConfig = fraudConfig;
+        this.detectionConfig = detectionConfig;
     }
 
     private static final Logger logger = LoggerFactory.getLogger(FraudDetectionService.class);
@@ -33,7 +33,7 @@ public class FraudDetectionService {
      */
     public boolean isSimilarToKnownMule(String customerId, float[] emb) {
         logger.info("Checking similarity to known mules for customer {} with embedding length {}", customerId, emb.length);
-        double threshold = fraudConfig.getSimilarityThreshold();
+        double threshold = detectionConfig.getFraud().getSimilarityThreshold();
         Pageable limit10 = PageRequest.of(0, 10);
 
         List<TransactionEntity> knownMules = transactionRepository
@@ -66,18 +66,18 @@ public class FraudDetectionService {
 
         long inflows = recent.stream()
                 .filter(t -> t.getDirection() == TransactionDirection.INBOUND
-                        && t.getAmount().compareTo(BigDecimal.valueOf(fraudConfig.getInflow().getMaxAmount())) < 0)
+                        && t.getAmount().compareTo(BigDecimal.valueOf(detectionConfig.getFraud().getInflow().getMaxAmount())) < 0)
                 .count();
         logger.info("Number of small inflows: {}", inflows);
 
         long outflows = recent.stream()
                 .filter(t -> t.getDirection() == TransactionDirection.OUTBOUND
-                        && t.getAmount().compareTo(BigDecimal.valueOf(fraudConfig.getOutflow().getMinAmount())) > 0)
+                        && t.getAmount().compareTo(BigDecimal.valueOf(detectionConfig.getFraud().getOutflow().getMinAmount())) > 0)
                 .count();
         logger.info("Number of large outflows: {}", outflows);
 
-        boolean flag = inflows >= fraudConfig.getInflow().getCount()
-                && outflows >= fraudConfig.getOutflow().getCount();
+        boolean flag = inflows >= detectionConfig.getFraud().getInflow().getCount()
+                && outflows >= detectionConfig.getFraud().getOutflow().getCount();
         logger.info("Suspicious flow pattern for customer {}: {}", customerId, flag);
         return flag;
     }
