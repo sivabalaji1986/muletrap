@@ -15,6 +15,12 @@ public interface TransactionRepository extends JpaRepository<TransactionEntity, 
      */
     List<TransactionEntity> findTop10ByIsMuleTrueOrderByCreatedAtDesc();
 
+    // new: top 10 mule‑flagged in a specific country
+    List<TransactionEntity> findTop10ByIsMuleTrueAndCountryOrderByCreatedAtDesc(
+            String country,
+            Pageable pageable
+    );
+
     /**
      * Fetch the last 10 mule-flagged transactions for the specified customer, ordered by most recent.
      */
