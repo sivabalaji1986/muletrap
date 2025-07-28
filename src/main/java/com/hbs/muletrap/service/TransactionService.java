@@ -7,6 +7,8 @@ import com.hbs.muletrap.entity.TransactionEntity;
 import com.hbs.muletrap.repository.TransactionRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -19,6 +21,8 @@ public class TransactionService {
     private final FraudDetectionService fraudDetectionService;
     private final TransactionRepository transactionRepository;
     private final DetectionConfig detectionConfig;
+
+    private static final Pageable TOP10 = PageRequest.of(0,10);
 
     public TransactionService(
             PromptGeneratorService promptGeneratorService,
@@ -67,8 +71,15 @@ public class TransactionService {
         return toTransactionResponse(transactionEntityResponse);
     }
 
-    public List<TransactionResponse> listMules() {
-        List<TransactionEntity> transactionEntities = transactionRepository.findTop10ByIsMuleTrueOrderByCreatedAtDesc();
+    public List<TransactionResponse> listMules(String country) {
+        List<TransactionEntity> transactionEntities;
+        logger.info("Listing mules with country filter: {}", country);
+        if (country != null && !country.isBlank()) {
+            transactionEntities = transactionRepository.findTop10ByIsMuleTrueAndCountryOrderByCreatedAtDesc(country, TOP10);
+        } else {
+            transactionEntities = transactionRepository.findTop10ByIsMuleTrueOrderByCreatedAtDesc();
+        }
+
         logger.info("Found {} mules in the database", transactionEntities.size());
         List<TransactionResponse> transactionResponseList = transactionEntities.stream()
                 .map(this::toTransactionResponse)
