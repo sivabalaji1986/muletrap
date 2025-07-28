@@ -31,8 +31,8 @@ public class FraudDetectionService {
     /**
      * Check if a new embedding is similar to any of the last 10 mule embeddings for the same customer.
      */
-    public boolean isSimilarToCustomerMules(String customerId, float[] emb) {
-        logger.info("Checking similarity to known mules for customer {} with embedding length {}", customerId, emb.length);
+    public boolean isSimilarToKnownMules(String customerId, float[] embedding) {
+        logger.info("Checking similarity to known mules for customer {} with embedding length {}", customerId, embedding.length);
         double threshold = detectionConfig.getFraud().getSimilarityThreshold();
         Pageable limit10 = PageRequest.of(0, 10);
 
@@ -40,9 +40,9 @@ public class FraudDetectionService {
                 .findTop10ByCustomerIdAndIsMuleTrueOrderByCreatedAtDesc(customerId, limit10);
 
         for (TransactionEntity mule : knownMules) {
-            float[] muleEmb = mule.getEmbedding();
-            if (muleEmb != null) {
-                float sim = cosineSimilarity(emb, muleEmb);
+            float[] muleEmbedding = mule.getEmbedding();
+            if (muleEmbedding != null) {
+                float sim = cosineSimilarity(embedding, muleEmbedding);
                 logger.info("Comparing to mule {}: similarity = {}", mule.getId(), sim);
                 if (sim > threshold) {
                     logger.info("Found similar mule {} with similarity {} > threshold {}", mule.getId(), sim, threshold);
@@ -52,6 +52,16 @@ public class FraudDetectionService {
         }
         logger.info("No similar mules found for customer {}", customerId);
         return false;
+    }
+
+    public boolean isMuleCandidate(String country) {
+        List<String> riskyCountries = detectionConfig.getRisk().getHighRiskCountries();
+        if (!riskyCountries.contains(country)) {
+            logger.info("Country {} is not high-risk. Skipping mule detection.", country);
+            return false;
+        }
+        logger.info("Country {} is high-risk. Proceeding with mule detection", country);
+        return true;
     }
 
     public boolean isSimilarToAnyKnownMule(float[] emb) {
