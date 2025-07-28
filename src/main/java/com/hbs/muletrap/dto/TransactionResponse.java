@@ -13,6 +13,7 @@ public class TransactionResponse {
     private String time;
     private String country;
     private int accountAgeDays;
+    private TransactionDirection direction;
     private String activitySummary;
     private boolean mule;
     private LocalDateTime createdAt;

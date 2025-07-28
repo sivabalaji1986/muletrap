@@ -23,5 +23,7 @@ public class TransactionInput {
     @Min(0)
     private int accountAgeDays;
 
+    private TransactionDirection direction;
+
     private String activitySummary;
 }

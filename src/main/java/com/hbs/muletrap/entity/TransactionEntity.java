@@ -1,5 +1,6 @@
 package com.hbs.muletrap.entity;
 
+import com.hbs.muletrap.dto.TransactionDirection;
 import jakarta.persistence.*;
 import lombok.Data;
 import org.hibernate.annotations.Array;
@@ -24,6 +25,10 @@ public class TransactionEntity {
     private String country;
     private int accountAgeDays;
     private String activitySummary;
+
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private TransactionDirection direction;
 
     /**
      * Hibernate‑vector will now handle pgvector VECTOR(768) natively.
