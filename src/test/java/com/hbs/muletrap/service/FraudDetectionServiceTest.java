@@ -1,8 +1,6 @@
 package com.hbs.muletrap.service;
 
-import com.hbs.muletrap.config.FraudConfig;
-import com.hbs.muletrap.config.FraudConfig.Inflow;
-import com.hbs.muletrap.config.FraudConfig.Outflow;
+import com.hbs.muletrap.config.DetectionConfig;
 import com.hbs.muletrap.dto.TransactionDirection;
 import com.hbs.muletrap.entity.TransactionEntity;
 import com.hbs.muletrap.repository.TransactionRepository;
@@ -22,26 +20,28 @@ import static org.mockito.Mockito.*;
 class FraudDetectionServiceTest {
 
     private TransactionRepository transactionRepository;
-    private FraudConfig fraudConfig;
+    private DetectionConfig detectionConfig;
     private FraudDetectionService service;
     private final String customerId = UUID.randomUUID().toString();
 
     @BeforeEach
     void setUp() {
         transactionRepository = mock(TransactionRepository.class);
-        fraudConfig = new FraudConfig();
+        DetectionConfig.FraudConfig fraudConfig = new DetectionConfig.FraudConfig();
         // set up fraud thresholds
         fraudConfig.setSimilarityThreshold(0.8);
-        Inflow inflow = new Inflow();
+        DetectionConfig.FraudConfig.Inflow inflow = new DetectionConfig.FraudConfig.Inflow();
         inflow.setCount(2);
         inflow.setMaxAmount(100.0);
         fraudConfig.setInflow(inflow);
-        Outflow outflow = new Outflow();
+        DetectionConfig.FraudConfig.Outflow outflow = new DetectionConfig.FraudConfig.Outflow();
         outflow.setCount(1);
         outflow.setMinAmount(50.0);
         fraudConfig.setOutflow(outflow);
+        detectionConfig = new DetectionConfig();
+        detectionConfig.setFraud(fraudConfig);
 
-        service = new FraudDetectionService(transactionRepository, fraudConfig);
+        service = new FraudDetectionService(transactionRepository, detectionConfig);
     }
 
     @Test

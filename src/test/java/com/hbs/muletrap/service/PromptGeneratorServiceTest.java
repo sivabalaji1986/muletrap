@@ -1,6 +1,6 @@
 package com.hbs.muletrap.service;
 
-import com.hbs.muletrap.config.RiskConfig;
+import com.hbs.muletrap.config.DetectionConfig;
 import com.hbs.muletrap.dto.TransactionInput;
 import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;
@@ -10,8 +10,8 @@ import java.util.List;
 class PromptGeneratorServiceTest {
     @Test
     void testGeneratePrompt() {
-        RiskConfig config = new RiskConfig();
-        config.setAmount(new RiskConfig.AmountThreshold());
+        DetectionConfig.RiskConfig config = new DetectionConfig.RiskConfig();
+        config.setAmount(new DetectionConfig.RiskConfig.AmountThreshold());
         config.getAmount().setLow(0);
         config.getAmount().setMedium(1000);
         config.getAmount().setHigh(5000);
