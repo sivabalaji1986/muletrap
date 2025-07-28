@@ -25,7 +25,7 @@ public class TransactionController {
     private static final Logger logger = LoggerFactory.getLogger(TransactionController.class);
 
     @PostMapping
-    public ResponseEntity<TransactionResponse> submit(@Valid @RequestBody TransactionInput input) {
+    public ResponseEntity<TransactionResponse> submitTransaction(@Valid @RequestBody TransactionInput input) {
         logger.info("TransactionController - Received transaction input: {}", input);
         TransactionResponse transactionResponse = transactionService.process(input);
         logger.info("TransactionController - Processed transaction response: {}", transactionResponse);
@@ -36,8 +36,8 @@ public class TransactionController {
         }
     }
 
-    @GetMapping("/similar")
-    public ResponseEntity<List<TransactionResponse>> similar(@RequestParam(name="country", required=false) String country) {
+    @GetMapping("/flagged")
+    public ResponseEntity<List<TransactionResponse>> getFlaggedTransactions(@RequestParam(name="country", required=false) String country) {
         logger.info("TransactionController - Fetching mule transactions, country filter={}", country);
         List<TransactionResponse> listedMules = transactionService.listMules(country);
         logger.info("TransactionController - Found similar transactions: {}", listedMules);
