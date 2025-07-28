@@ -61,9 +61,15 @@ public class TransactionService {
         transactionEntity.setEmbedding(vector);
 
         // Fraud checks
-        boolean isMule = fraudDetectionService.isSimilarToCustomerMules(input.getCustomerId(), vector)
-                || fraudDetectionService.isSuspiciousInflowOutflowPattern(input.getCustomerId(), input.getAmount(), input.getDirection());
-        transactionEntity.setMule(isMule);
+        boolean isMuleCandidate = fraudDetectionService.isMuleCandidate(
+                input.getCountry());
+        logger.info("Is mule candidate: {}", isMuleCandidate);
+        if (isMuleCandidate) {
+            boolean isMule = fraudDetectionService.isSimilarToKnownMules(input.getCustomerId(), vector)
+                    || fraudDetectionService.isSuspiciousInflowOutflowPattern(input.getCustomerId(), input.getAmount(), input.getDirection());
+            logger.info("Transaction is flagged as mule: {}", isMule);
+            transactionEntity.setMule(isMule);
+        }
         logger.info("Transaction entity: {}", transactionEntity);
 
         // Persist
